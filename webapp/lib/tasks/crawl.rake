@@ -3,7 +3,7 @@ require 'yaml'
 
 config = YAML.load_file('crawler_config.yml')
 
-Group_to_track = config['group'] # Track posts of this group. This is the id for the group Programmatori a Catania
+Groups_to_track = config['group'] # Track posts of this group. This is the id for the group Programmatori a Catania
 Pages_to_track = config['pages'] # track events only
 
 Feed_limit = 10000 # No need to have this very high, except for the first time
@@ -26,19 +26,28 @@ task :crawl => :environment do
 
   puts "Crawling - give me some time please!"
 
-  allowed_users = crawler.group_members(Group_to_track, Members_limit)
-  allowed_users.each do |user|
-    Alloweduser.from_fb_users(Group_to_track, user).save
+  puts "downloading pages info"
+  pages = crawler.info(Pages_to_track)
+  puts "downloading groups info"
+  groups = crawler.info(Groups_to_track)
+
+  puts "inserting crawled pages info into the db"
+  pages.each do |page|
+    Crawledsource.from_fb_page(page).save
+  end
+
+  puts "inserting crawled groups info into the db"
+  groups.each do |page|
+    Crawledsource.from_fb_page(page).save
   end
 
   time_started = Time.now
   feed = nil
-  page_events = nil
 
   since = Post.last_post_date
 
   puts "downloading group feed"
-  feed = crawler.group_feed(Group_to_track, Feed_limit, since)
+  feed = crawler.group_feed(Groups_to_track, Feed_limit, since)
 
   puts "downloading page events"
   events = feed[:events] + crawler.page_events(Pages_to_track, Feed_limit)

@@ -1,6 +1,10 @@
 class EventsController < ApplicationController
 
   def index
+
+    # Not displayed yet
+    @sources = Crawledsource.all
+
     @future = Event.future.page(params[:future_page]).order('starts_at ASC')
     @old = Event.page(params[:old_page]).order('starts_at DESC')
 

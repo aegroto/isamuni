@@ -24,15 +24,10 @@ class Crawler
   # +id+:: of the group
   # +limit+:: number of maximum posts to query for
   # +since+:: (optional) query all the posts since this date (yyyy-mm-dd)
-  def group_raw_feed groupid, limit, since=nil
+  def groups_raw_feed groups, limit, since=nil
     options = { limit: limit, fields: Feed_fields, since: since }
-    @graph.get_connection(groupid, 'feed', options)
-  end
-
-  def group_members groupid, limit
-    options = { limit: limit }
-    @graph.get_connection(groupid, 'members', options)
-  end    
+    groups.flat_map {|id| @graph.get_connection(id, 'feed', options)}
+  end 
 
   def page_events pages, since=nil
     options = { fields: Event_fields, since: since }
@@ -44,8 +39,8 @@ class Crawler
     @graph.get_object(event_id, { fields: Event_fields })
   end
 
-  def group_feed groupid, limit, since
-    feed = group_raw_feed(groupid, limit, since)
+  def group_feed groups, limit, since
+    feed = groups_raw_feed(groups, limit, since)
 
     posts = feed.select { |fe|
           ['status', 'link', 'photo', 'event'].include? fe['type'] }
@@ -59,6 +54,10 @@ class Crawler
       end
 
     return {posts: posts, events: events}
+  end
+
+  def info pages_or_groups
+    pages_or_groups.flat_map {|id| @graph.get_object(id)}
   end
 
 end

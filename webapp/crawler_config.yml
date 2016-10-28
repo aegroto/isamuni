@@ -1,5 +1,6 @@
-group: 281460675321367 # Track posts of this group. This is the id for the group Programmatori a Catania
-pages: 
+group: # Track posts of this group.
+  - 281460675321367  # Programmatori a Catania
+pages:
   - 116505148430596  # YoutHub
   - 371576386279313  # EESTEC Catania
   - 1486797638277248 # CoderDojo Etneo
